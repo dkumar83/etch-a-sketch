@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .container {
+            background: linear-gradient(90deg, #e3ffe7 0%, #fff5d9 100%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            border: 18px solid red;
+            border-radius: 1em;
+            box-shadow: 10px 10px 0px -3px rgba(0,0,0,0.75);
+
+            
+            
+        }
+        .controls {
+            display: flex;
+            gap:1em;
+            margin: 1em;
+        }
+        .square {
+            height: 16px;
+            width: 16px;
+            border: 1px solid  #ccc;
+            box-sizing: border-box;
+        }
+        .new-color {
+            width: 50px;
+            height: 20px;
+            display: block;
+            background: black;
+        }
+
+        .lhs-dial {
+        }
+
+        .dials {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            top: -20px;
+            width: 256px;
+        }
+
+        @import url("https://fonts.googleapis.com/css2?family=Russo+One&display=swap");
+
+        svg {
+            font-family: "Russo One", sans-serif;
+            width: 100%; height: 100%;
+        }
+        svg text {
+            animation: stroke 5s alternate;
+            stroke-width: 2;
+            stroke: #A00000;
+            font-size: 100px;
+            fill: rgba(181,159,18,1);
+        }
+        @keyframes stroke {
+            0%   {
+                fill: rgba(181,159,18,0); stroke: rgba(160,0,0,1);
+                stroke-dashoffset: 25%; stroke-dasharray: 0 50%; stroke-width: 2;
+            }
+            70%  {fill: rgba(181,159,18,0); stroke: rgba(160,0,0,1); }
+            80%  {fill: rgba(181,159,18,0); stroke: rgba(160,0,0,1); stroke-width: 3; }
+            100% {
+                fill: rgba(181,159,18,1); stroke: rgba(160,0,0,0);
+                stroke-dashoffset: -25%; stroke-dasharray: 50% 0; stroke-width: 0;
+            }
+        }
+
+        .wrapper {background-color: #FFFFFF; width: 100%;};
+
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="wrapper">
+            <svg>
+                <text x="50%" y="50%" dy=".35em" text-anchor="middle">
+                    Etch-a-Sketch
+                </text>
+            </svg>
+        </div>
+        <div class="controls">
+            <button id="reset">Reset</button>
+            <button id="rainbow">Rainbow</button>
+            <button id="fade">Fade Off</button>
+            <button id="colorChange">Change Color</button>
+            <span class="new-color"></span>
+            <input type="range" name="slider" id="gridSize" min="4" max="64" value="16">
+            <span class="sliderValue">Grid size: 16 x 16</span>
+        </div>
+        <div class="container">
+        </div>
+        <div class="dials">
+            <img src="dial_lhs.png" alt="LHS dial" class="lhs-dial">    
+            <img src="dial_lhs.png" alt="RHS dial" class="rhs-dial">    
+    
+        </div>
+    
+    
+        <script>
+            
+            const slider = document.querySelector("#gridSize");
+            const sliderValue = document.querySelector(".sliderValue");
+            sliderValue.innerText = "Grid size: " + slider.value + " x "+ slider.value;
+            const dials = document.querySelector(".dials");
+            
+            const container = document.querySelector(".container");
+            container.style.setProperty("max-width", 16 * slider.value + "px");
+    
+            slider.addEventListener("change", () => {
+                sliderValue.innerText = "Grid size: " + slider.value + " x "+ slider.value;
+                container.style.setProperty("max-width", 16 * slider.value + "px");
+                dials.style.setProperty("width", 16 * slider.value + "px");
+                
+
+                container.innerHTML = "";
+                opacity = 1;
+                drawGrid(slider.value * slider.value);
+    
+            });
+    
+            const fadeBtn = document.querySelector("#fade");
+            let fadeStatus = false;
+            fadeBtn.addEventListener("click", () => {
+                if (!fadeStatus) {
+                    fadeBtn.innerText = "Fade Active";
+                    fadeBtn.style = "background:black; color:white;";
+                    fadeStatus = true;
+                    console.log(fadeStatus);
+                } else {
+                    fadeBtn.innerText = "Fade Off";
+                    fadeBtn.style = "background:; color:;";
+
+                    fadeStatus = false;
+                }
+            })
+    
+            const lhsDial = document.querySelector(".lhs-dial");
+            const rhsDial = document.querySelector(".rhs-dial");
+            let lhsRotation = 0;
+            let rhsRotation = 0;
+    
+            container.addEventListener("mousemove", (e) => {
+                if (e.movementX > 0 || e.movementY > 0) {
+                    lhsRotation += 1;
+                    rhsRotation -= 1;
+                    lhsDial.style.transform = 'rotate(' + lhsRotation + 'deg)';
+                    rhsDial.style.transform = 'rotate(' + rhsRotation + 'deg)';
+                } else if (e.movementX < 0 || e.movementY < 0) {
+                    lhsRotation -= 1;
+                    rhsRotation += 1;
+                    lhsDial.style.transform = 'rotate(' + lhsRotation + 'deg)';
+                    rhsDial.style.transform = 'rotate(' + rhsRotation + 'deg)';
+    
+                } else if (e.movementY < 0) {
+                    rhsRotation += 1;
+                    rhsDial.style.transform = 'rotate(' + rhsRotation + 'deg)';
+                }  else if (e.movementY > 0) {
+                    rhsRotation -= 1;
+                    rhsDial.style.transform = 'rotate(' + rhsRotation + 'deg)';
+                } 
+            });
+            
+            const resetBtn = document.querySelector("#reset");
+            const colorBtn = document.querySelector("#colorChange");
+            const rainbowBtn = document.querySelector("#rainbow");
+            const colorPalette = document.querySelector(".new-color");
+    
+            function randomColor() {
+                return `rgb(${Math.round(Math.random() * 255)},${Math.round(Math.random() * 255)},${Math.round(Math.random() * 255)})`;
+            }
+    
+            let newColor = false;
+            let rainbowColor = false;
+            let reset = false;
+            
+            colorBtn.addEventListener("click", () => {
+                newColor = randomColor();
+                colorPalette.style = `background:${newColor};`;
+                opacity = 1;
+    
+            });
+    
+            let opacity = 1;
+                    
+            function drawGrid (numberOfSquares) {
+                for (let i = 0; i < numberOfSquares; i++) {
+                    const newSquare = document.createElement("div");
+    
+                    //newSquare.innerText = i;
+                    newSquare.classList.add("square");
+                    
+                    document.querySelector(".container").appendChild(newSquare);
+    
+                    rainbowBtn.addEventListener("click", (e) => {
+                            rainbowColor = true;
+                            newColor = false;
+                            reset = false;
+                            opacity = 1;
+                    });
+    
+                    
+    
+                    newSquare.addEventListener("mouseover", (e) => {
+                        if (newColor) {
+                            !rainbowColor;
+                            !reset;
+                            e.target.style = "background:"+ newColor +"; opacity:" + opacity + ";";
+                        }
+                        else if (reset) {
+                            !rainbowColor;
+                            !newColor;
+                            e.target.style = "background:black; opacity:" + opacity + ";";
+                        }
+                        else if (rainbowColor) {
+                            let tempColor = randomColor();
+                            !newColor;
+                            !reset;
+                            e.target.style = "background:"+ tempColor +"; opacity:" + opacity + ";";
+    
+                        } else {
+                            e.target.style = "background:black; opacity:" + opacity + ";";
+                        }
+                        if (fadeStatus) {
+                            opacity -= 0.01;
+                        } else {
+                            opacity = 1;
+                        }
+    
+                    });
+    
+                    
+                    resetBtn.addEventListener("click", () => {
+                        newSquare.style = "background:none;";
+                        reset = true;
+                        newColor = false;
+                        rainbowColor = false;
+                        colorPalette.style = `background:black;opacity:1;`;
+                        opacity = 1;
+                        lhsRotation = 0; 
+                        rhsRotation = 0;
+                        rhsDial.style.transform = 'rotate(0deg)';
+                        lhsDial.style.transform = 'rotate(0deg)';
+                        colorBtn.style = `background:;`;
+                        rainbowBtn.style = `background:;`;
+
+    
+                    });
+                    
+                }
+    
+            }
+            
+            drawGrid(256);
+            
+            // testing new event listeners
+            rainbowBtn.addEventListener("click", () => {
+                rainbowBtn.style = "background: #833AB4;background: linear-gradient(90deg,rgba(131, 58, 180, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(252, 176, 69, 1) 100%);" ;    
+                colorBtn.style = "background:;color:;";
+            });
+            colorBtn.addEventListener("click", () => {
+                rainbowBtn.style = "background:;" ;    
+                colorBtn.style = `background:${newColor};`;
+            });
+    
+            </script>
+        
+    </div>
+
+</body>
+</html>
