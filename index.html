@@ -21,8 +21,6 @@
             border-radius: 1em;
             box-shadow: 10px 10px 0px -3px rgba(0,0,0,0.75);
 
-            
-            
         }
         .controls {
             display: flex;
@@ -30,8 +28,6 @@
             margin: 1em;
         }
         .square {
-            height: 16px;
-            width: 16px;
             border: 1px solid  #ccc;
             box-sizing: border-box;
         }
@@ -50,7 +46,7 @@
             justify-content: space-between;
             position: relative;
             top: -20px;
-            width: 256px;
+            width: 960px;
         }
 
         @import url("https://fonts.googleapis.com/css2?family=Russo+One&display=swap");
@@ -98,7 +94,7 @@
             <button id="fade">Fade Off</button>
             <button id="colorChange">Change Color</button>
             <span class="new-color"></span>
-            <input type="range" name="slider" id="gridSize" min="4" max="64" value="16">
+            <input type="range" name="slider" id="gridSize" min="16" max="100" value="16">
             <span class="sliderValue">Grid size: 16 x 16</span>
         </div>
         <div class="container">
@@ -118,17 +114,13 @@
             const dials = document.querySelector(".dials");
             
             const container = document.querySelector(".container");
-            container.style.setProperty("max-width", 16 * slider.value + "px");
+            container.style.setProperty("max-width", "960px");
     
             slider.addEventListener("change", () => {
                 sliderValue.innerText = "Grid size: " + slider.value + " x "+ slider.value;
-                container.style.setProperty("max-width", 16 * slider.value + "px");
-                dials.style.setProperty("width", 16 * slider.value + "px");
-                
-
                 container.innerHTML = "";
                 opacity = 1;
-                drawGrid(slider.value * slider.value);
+                drawGrid(slider.value);
     
             });
     
@@ -197,12 +189,14 @@
             let opacity = 1;
                     
             function drawGrid (numberOfSquares) {
-                for (let i = 0; i < numberOfSquares; i++) {
+                let squareDimensions;
+                squareDimensions = Math.round(960 / numberOfSquares);
+                for (let i = 0; i < (numberOfSquares * numberOfSquares); i++) {
                     const newSquare = document.createElement("div");
     
                     //newSquare.innerText = i;
                     newSquare.classList.add("square");
-                    
+                    newSquare.style = "width:"+ 960 / numberOfSquares + "px; height:"+ 960 / numberOfSquares + "px;"
                     document.querySelector(".container").appendChild(newSquare);
     
                     rainbowBtn.addEventListener("click", (e) => {
@@ -218,21 +212,25 @@
                         if (newColor) {
                             !rainbowColor;
                             !reset;
-                            e.target.style = "background:"+ newColor +"; opacity:" + opacity + ";";
+                            e.target.style.background = newColor;
+                            e.target.style.opacity = opacity;
                         }
                         else if (reset) {
                             !rainbowColor;
                             !newColor;
-                            e.target.style = "background:black; opacity:" + opacity + ";";
+                            e.target.style.background = "black";
+                            e.target.style.opacity = opacity;
                         }
                         else if (rainbowColor) {
                             let tempColor = randomColor();
                             !newColor;
                             !reset;
-                            e.target.style = "background:"+ tempColor +"; opacity:" + opacity + ";";
+                            e.target.style.background = tempColor;
+                            e.target.style.opacity = opacity;
     
                         } else {
-                            e.target.style = "background:black; opacity:" + opacity + ";";
+                            e.target.style.background = "black";
+                            e.target.style.opacity = opacity;
                         }
                         if (fadeStatus) {
                             opacity -= 0.01;
@@ -244,11 +242,13 @@
     
                     
                     resetBtn.addEventListener("click", () => {
-                        newSquare.style = "background:none;";
+                        newSquare.style.background = "none";
+                        newSquare.style.opacity = 1;
                         reset = true;
                         newColor = false;
                         rainbowColor = false;
-                        colorPalette.style = `background:black;opacity:1;`;
+                        colorPalette.style.background = "black";
+                        colorPalette.style.opacity = 1;
                         opacity = 1;
                         lhsRotation = 0; 
                         rhsRotation = 0;
@@ -256,7 +256,6 @@
                         lhsDial.style.transform = 'rotate(0deg)';
                         colorBtn.style = `background:;`;
                         rainbowBtn.style = `background:;`;
-
     
                     });
                     
@@ -264,7 +263,7 @@
     
             }
             
-            drawGrid(256);
+            drawGrid(16);
             
             // testing new event listeners
             rainbowBtn.addEventListener("click", () => {
